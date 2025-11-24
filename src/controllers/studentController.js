@@ -25,3 +25,36 @@ export const createStudent = (req, res) => {
   students.push(newStudent);
   res.status(201).json(newStudent);
 };
+
+export const searchStudents = (req, res) => {
+  const { name, department, year, rollNo } = req.query;
+  if (!name && !department && !year && !rollNo) {
+    return res
+      .status(400)
+      .json({ message: "At least one search parameter is required (name, department, year, or rollNo)" });
+  }
+
+  let results = [...students];
+  if (name) {
+    const searchTerms = name.toLowerCase().trim().split(/\s+/);
+    results = results.filter((student) => {
+      const studentName = student.name.toLowerCase();
+      return searchTerms.every(term => studentName.includes(term));
+    });
+  }
+  if (department) {
+    results = results.filter((student) =>
+      student.department.toLowerCase().includes(department.toLowerCase())
+    );
+  }
+  if (year) {
+    const yearNum = Number(year);
+    results = results.filter((student) => student.year === yearNum);
+  }
+  if (rollNo) {
+    results = results.filter((student) =>
+      student.rollNo.toLowerCase().includes(rollNo.toLowerCase())
+    );
+  }
+  res.json(results);
+};
